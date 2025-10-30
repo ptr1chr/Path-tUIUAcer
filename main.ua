@@ -1,9 +1,14 @@
+~ "classes/vec3.ua"
+  ~ Cross
+  ~ Dot
+  ~ Length
+  ~ UnitVector
 # init grid
-÷⟜⇡1920 # width
-÷⟜⇡1080 # height
-⊞(˜⊂0⊂)
+÷⟜⇡128 # width
+÷⟜⇡128 # height
+⊞(˜⊂0↻1⊂)
 
 #
 
-# &ims # render image to term
-&fwa "out/out.png" img"png" # image to screen
+&ims # render image to term
+# &fwa "out/out.png" img"png" # image to screen
