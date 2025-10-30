@@ -1,14 +1,24 @@
-~ "classes/vec3.ua"
-  ~ Cross
-  ~ Dot
-  ~ Length
-  ~ UnitVector
+┌─╴vec₃
+  # vector operations
+  Cross         ← ˜-˜∩×⟜⊸∩↻₁∩↻₁
+  Dot           ← /+×
+  LengthSquared ← /+˙×
+  Length        ← √LengthSquared
+  UnitVector    ← ˜÷⟜Length
+└─╴
 # init grid
-÷⟜⇡128 # width
-÷⟜⇡128 # height
+AspectRatio ← ÷16 9                    # aspect ratio
+ImageWidth  ← 128                      # width number
+Width       ← ÷⟜⇡ ImageWidth           # screen uv width
+ImageHeight ← ⁅÷AspectRatio ImageWidth # screen uv height 
+Height      ← ÷⟜⇡ ImageHeight          # height number
+Width Height
 ⊞(˜⊂0↻1⊂)
 
+# init viewport values
+ViewHeight ← 2
+ViewWidth  ← × ViewHeight (÷ ImageWidth ImageHeight)
+ViewWidth
 #
-
-# &ims # render image to term
+⊙&ims # render image to term
 # &fwa "out/out.png" img"png" # image to screen
