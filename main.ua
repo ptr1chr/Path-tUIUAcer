@@ -10,5 +10,5 @@
 
 #
 
-&ims # render image to term
+# &ims # render image to term
 # &fwa "out/out.png" img"png" # image to screen
