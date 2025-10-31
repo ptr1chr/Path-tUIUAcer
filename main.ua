@@ -4,17 +4,14 @@
   Dot           ← /+×
   LengthSquared ← /+˙×
   Length        ← √LengthSquared
-  UnitVector    ← ˜÷⟜Length
-└─╴
-┌─╴ray
-  PixelCentre ←
+  UnitVector    ← ˜÷⟜(¤ Length)
 └─╴
 # init grid
-AspectRatio ← ÷16 9                      # aspect ratio
-ImageWidth  ← 128                        # width number
-Width       ← ÷⟜⇡ ImageWidth             # screen uv width
+AspectRatio ← ÷9 16                      # aspect ratio
+ImageWidth  ← 512                        # width number
+Width       ← ⇡ ImageWidth               # screen uv width
 ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
-Height      ← ÷⟜⇡ ImageHeight            # height number
+Height      ← ⇡ ImageHeight              # height number
 # Width Height
 # ⊞(˜⊂0↻1⊂)
 
@@ -22,24 +19,43 @@ Height      ← ÷⟜⇡ ImageHeight            # height number
 ┌─╴Cam
   FocalLength  ← 1
   ViewHeight   ← 2
-  ViewWidth    ← × ViewHeight (÷ ImageWidth ImageHeight)
+  ViewWidth    ← × ViewHeight (÷ ImageHeight ImageWidth)
   CameraCentre ← 0_0_0
   # vectors across the viewport edges
   ViewPortU ← [ViewWidth 0 0]
   ViewPortV ← [0 ¯ViewHeight 0]
   # delta vectors between each pixel
-  PixelDeltaU ← ÷ ViewPortU ImageWidth
-  PixelDeltaV ← ÷ ViewPortV ImageHeight
+  PixelDeltaU ← ÷ ImageWidth ViewPortU
+  PixelDeltaV ← ÷ ImageHeight ViewPortV
   # location of top left pixel
-  ViewPortUpperLeft ← - CameraCentre -[0 0 FocalLength] - (÷ ViewPortU 2) (÷ ViewPortV 2)
-  TopLeftPixelLoc   ← ViewPortUpperLeft + ×0.5 (+ PixelDeltaU PixelDeltaV)
+  ViewPortUpperLeft ← - - - (÷ 2 ViewPortV) (÷ 2 ViewPortU) [0 0 FocalLength] CameraCentre
+  TopLeftPixelLoc   ← + ViewPortUpperLeft ×0.5 (+ PixelDeltaU PixelDeltaV)
   # topleftpixelloc should be same as pixel00 loc in raytracing in one weekend
 └─╴
 
-┌─╴draw
-  # create grid
-  ⬚0↯ ⊂△Width△Height []
-  # &ims # render image to term
-  # &fwa "out/out.png" img"png" # image to file
+≡× ¤ Cam~PixelDeltaV Height ≡× ¤ Cam~PixelDeltaU Width
++ ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
+≡≡(- Cam~CameraCentre)     # ray direction
+
+┌─╴Sphere
+  Oc           ← -                     # centre - ray origin (pass ray origin then centre)
+  A            ← ≡≡˙vec₃~Dot           # takes ray direction
+  B            ← ×¯2 vec₃~Dot⊙°⍉ Oc    # takes ray origin, centre, ray direction
+  C            ← - ⊓(˙×)(˙vec₃~Dot Oc) # self dot oc - radius^2
+  Discriminant ← - ××4 ⊙⊙A⊙C ˙×B       # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
+  HitSphere    ← ≥0 Discriminant
 └─╴
-# 
+┌─╴ray
+  Ray ← ⬚0↯ ⊂△Width△Height []
+  RayColour ← (
+    ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
+    +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
+  )
+└─╴
+# ray~RayColour
+0_0_0 [0 0 ¯ 1] ⟜(0.5 0_0_0 [0 0 ¯ 1] ∘)
+Sphere~HitSphere
+
+&ims # render image to term
+# &fwa "out/out.png" img"png" # image to file
+#
