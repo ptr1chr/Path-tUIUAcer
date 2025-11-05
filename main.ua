@@ -27,34 +27,53 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   ViewPortUpperLeft ← ˜- ˜- - (÷ 2 ViewPortV) CameraCentre (÷ 2 ViewPortU) [0 0 FocalLength]
   TopLeftPixelLoc   ← + ViewPortUpperLeft ×0.5 (+ PixelDeltaU PixelDeltaV)
   # topleftpixelloc should be same as pixel00 loc in raytracing in one weekend
+  GetRayDir ← (
+    ≡× ¤ Cam~PixelDeltaV⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⇡ ImageWidth
+    + ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
+    ⍉ - Cam~CameraCentre°⍉     # ray direction
+  )
 └─╴
 
-≡× ¤ Cam~PixelDeltaV⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⇡ ImageWidth
-+ ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
-⍉ - Cam~CameraCentre°⍉     # ray direction
+Cam~GetRayDir
 
 ┌─╴Sphere
-  Oc           ← -                     # centre - ray origin (pass ray origin then centre)
-  A            ← ˙vec₃~Dot°⍉           # takes ray direction
-  B            ← ×¯2 vec₃~Dot⊙°⍉ Oc    # takes ray origin, centre, ray direction
-  C            ← - ⊓(˙×)(˙vec₃~Dot Oc) # self dot oc - radius^2
-  Discriminant ← - ⊙(××4 ⊙A C) ˙×B     # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
-  HitSphere    ← ≥0 Discriminant
+  Oc ← -                      # centre - ray origin (pass ray origin then centre)
+  A  ← ˙vec₃~Dot°⍉            # takes ray direction
+  B  ← ×¯2 vec₃~Dot⊙°⍉ Oc     # takes ray origin, centre, ray direction
+  C  ← ˜- ⊓(˙vec₃~Dot Oc)(˙×) # self dot oc - radius^2
+  Discriminant ← (
+    ◡(˙×B)
+
+    ◡⋅⊙⊙⋅∘   # reorders so its 1 2 4 0 1 2 3 4
+    ⊙⊙⊙⊙⋅⋅⊙◌ # should remove excess values
+    ⊙⊙⊙˜⟜₂⋅◌
+    ××4 ⊙A C
+    ˜-
+  ) # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
+  HitSphere ← (
+    ⊃(≥ 0 Discriminant)(× (÷ - ⊃⊃(⊙◌ ¯ B)(√ Discriminant)(×2 A⋅⋅⊙◌)))
+
+    ⨬(¯ 1_1_1)(∘)
+  )
 └─╴
 ┌─╴ray
   SkyColour ← (
     ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
     +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
   )
+  At ← + × # requires T, ray dir, ray origin
+
   Render ← (
     ⟜(SkyColour)
-  
-    0_0_0 [0 0 ¯ 1] ⟜(0.5 0_0_0 [0 0 ¯ 1] ∘)
+
+    Cam~CameraCentre [0 0 ¯ 1] ⊙0.5
     Sphere~HitSphere
-    ⟜×
-    ≡≡(×1_0_0) ¬
-    +
+
+    # ⟜×
+    # ≡≡(×1_0_0) ¬
+    # +
   )
+
 └─╴
 
 ray~Render
