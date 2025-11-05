@@ -51,9 +51,9 @@ Cam~GetRayDir
     ˜-
   ) # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
   HitSphere ← (
-    ⊃(≥ 0 Discriminant)(× (÷ - ⊃⊃(⊙◌ ¯ B)(√ Discriminant)(×2 A⋅⋅⊙◌)))
+    ⊃(≥ 0 Discriminant)(˜÷ ˜- ⊃⊃(⊙◌ ¯ B)(√ Discriminant)(×2 A⋅⋅⊙◌))
 
-    ⨬(¯ 1_1_1)(∘)
+    ⨬(¯1)(∘)
   )
 └─╴
 ┌─╴ray
@@ -77,7 +77,7 @@ Cam~GetRayDir
 └─╴
 
 ray~Render
-# &ims # render image to term
+&ims # render image to term
 
 # &fwa "out/out.png" img"png" # image to file
-# 
+#
