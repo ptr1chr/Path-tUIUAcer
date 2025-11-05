@@ -37,22 +37,22 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 Cam~GetRayDir
 
 ┌─╴Sphere
-  Oc ← -                      # centre - ray origin (pass ray origin then centre)
-  A  ← ˙vec₃~Dot°⍉            # takes ray direction
-  B  ← ×¯2 vec₃~Dot⊙°⍉ Oc     # takes ray origin, centre, ray direction
-  C  ← ˜- ⊓(˙vec₃~Dot Oc)(˙×) # self dot oc - radius^2
+  Oc ← -                               # centre - ray origin (pass ray origin then centre)
+  A  ← vec₃~LengthSquared°⍉            # takes ray direction
+  B  ← ×¯2 vec₃~Dot⊙°⍉ Oc              # takes ray origin, centre, ray direction
+  H  ← vec₃~Dot⊙°⍉ Oc                  # takes ray origin, centre, ray direction
+  C  ← ˜- ⊓(vec₃~LengthSquared Oc)(˙×) # self dot oc - radius^2
   Discriminant ← (
-    ◡(˙×B)
+    ◡(˙×H)
 
     ◡⋅⊙⊙⋅∘   # reorders so its 1 2 4 0 1 2 3 4
     ⊙⊙⊙⊙⋅⋅⊙◌ # should remove excess values
     ⊙⊙⊙˜⟜₂⋅◌
-    ××4 ⊙A C
-    ˜-
+    × ⊙A C
+    -
   ) # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
   HitSphere ← (
-    ⊃(≥ 0 Discriminant)(˜÷ ˜- ⊃⊃(⊙◌ ¯ B)(√ Discriminant)(×2 A⋅⋅⊙◌))
-
+    ⊃(≥0 Discriminant)(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
     ⨬(¯1)(∘)
   )
 └─╴
@@ -61,17 +61,22 @@ Cam~GetRayDir
     ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
     +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
   )
-  At ← + × # requires T, ray dir, ray origin
+  At ← +°⍉ × # requires T, ray dir, ray origin
 
   Render ← (
     ⟜(SkyColour)
 
     Cam~CameraCentre [0 0 ¯ 1] ⊙0.5
-    Sphere~HitSphere
-
-    # ⟜×
-    # ≡≡(×1_0_0) ¬
-    # +
+    ◡Sphere~HitSphere
+    ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
+    ⊃(>0)(
+      vec₃~UnitVector -[0 0 ¯ 1] At
+      ×0.5 +1
+      ⍉
+    )
+    ×
+    ⊸(=0)
+    ⨬(⊙◌)(+)
   )
 
 └─╴
