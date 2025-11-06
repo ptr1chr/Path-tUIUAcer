@@ -34,14 +34,11 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   )
 └─╴
 
-Cam~GetRayDir
-
 ┌─╴Sphere
-  Oc ← -                               # centre - ray origin (pass ray origin then centre)
-  A  ← vec₃~LengthSquared°⍉            # takes ray direction
-  B  ← ×¯2 vec₃~Dot⊙°⍉ Oc              # takes ray origin, centre, ray direction
-  H  ← vec₃~Dot⊙°⍉ Oc                  # takes ray origin, centre, ray direction
-  C  ← ˜- ⊓(vec₃~LengthSquared Oc)(˙×) # self dot oc - radius^2
+  Oc ← ⍉ - °⍉                             # centre - ray origin (pass ray origin then centre)
+  A  ← vec₃~LengthSquared°⍉               # takes ray direction
+  H  ← vec₃~Dot°⍉ ⊙°⍉ Oc                  # takes ray origin, centre, ray direction
+  C  ← ˜- ⊓(vec₃~LengthSquared °⍉ Oc)(˙×) # self dot oc - radius^2
   Discriminant ← (
     ◡(˙×H)
 
@@ -57,16 +54,16 @@ Cam~GetRayDir
   )
 └─╴
 ┌─╴ray
+  ~R {Origin Dir}
   SkyColour ← (
     ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
     +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
   )
-  At ← +°⍉ × # requires T, ray dir, ray origin
+  At ← °⍉ + × # requires T, ray dir, ray origin
 
   Render ← (
-    ⟜(SkyColour)
-
-    Cam~CameraCentre [0 0 ¯ 1] ⊙0.5
+    ⟜(SkyColour ray~R~Dir)
+    ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
     ◡Sphere~HitSphere
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
     ⊃(>0)(
@@ -81,8 +78,10 @@ Cam~GetRayDir
 
 └─╴
 
-ray~Render
-&ims # render image to term
+ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
 
-# &fwa "out/out.png" img"png" # image to file
+ray~Render
+# &ims # render image to term
+
+&fwa "out/out.png" img"png" # image to file
 #
