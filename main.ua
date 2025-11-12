@@ -34,6 +34,14 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   )
 └─╴
 
+┌─╴ray
+  ~R {Origin Dir}
+  SkyColour ← (
+    ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
+    +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
+  )
+  At ← + × # requires T, ray dir, ray origin
+└─╴
 ┌─╴Sphere
   Oc ← ≡₁-                             # centre - ray origin (pass ray origin then centre)
   A  ← ≡₁vec₃~LengthSquared            # takes ray direction
@@ -51,38 +59,33 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   HitSphere ← (
     # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
 
-    ◡(≥0 Discriminant)
-    ⊙(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
-    ⨬(¯1)(∘)
-  )
-└─╴
-┌─╴ray
-  ~R {Origin Dir}
-  SkyColour ← (
-    ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
-    +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
-  )
-  At ← + × # requires T, ray dir, ray origin
-
-  Render ← (
-    ⟜(SkyColour ray~R~Dir)
-    ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
-    ◡Sphere~HitSphere
+    ◡(
+      ◡(≥0 Discriminant)
+      ⊙(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
+      ⨬(¯1)(∘)
+    )
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
     ⊃(>0)(
-      ÷ 0.5 ≡₁-[0 0 ¯ 1] At
+      ÷ 0.5 ≡₁-[0 0 ¯ 1] ray~At
       ×0.5 +1
     )
-    ×
-    ⊸(=0)
-    ⨬(⊙◌)(+)
+  )
+└─╴
+┌─╴thing
+  Render ← (
+    # ⟜(SkyColour ray~R~Dir)
+    ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
+    Sphere~HitSphere
+    # ×
+    # ⊸(=0)
+    # ⨬(⊙◌)(+)
   )
 
 └─╴
 
 ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
 
-ray~Render
+thing~Render
 
 ┌─╴save
   Show ← (
