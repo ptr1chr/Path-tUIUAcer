@@ -1,10 +1,10 @@
 ┌─╴vec₃
   # vector operations
   Cross         ← ˜-˜∩×⟜⊸∩↻₁∩↻₁
-  Dot           ← /+×
-  LengthSquared ← /+˙×
+  Dot           ← ≡₁/+×
+  LengthSquared ← ≡₁/+˙×
   Length        ← √LengthSquared
-  UnitVector    ← ˜÷⟜(¤ Length)
+  UnitVector    ← ˜÷⟜(Length)
 └─╴
 # init grid
 AspectRatio ← ÷9 16                      # aspect ratio
@@ -35,10 +35,10 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 └─╴
 
 ┌─╴Sphere
-  Oc ← ⍉ - °⍉                             # centre - ray origin (pass ray origin then centre)
-  A  ← vec₃~LengthSquared°⍉               # takes ray direction
-  H  ← vec₃~Dot°⍉ ⊙°⍉ Oc                  # takes ray origin, centre, ray direction
-  C  ← ˜- ⊓(vec₃~LengthSquared °⍉ Oc)(˙×) # self dot oc - radius^2
+  Oc ← ≡₁-                             # centre - ray origin (pass ray origin then centre)
+  A  ← ≡₁vec₃~LengthSquared            # takes ray direction
+  H  ← vec₃~Dot Oc                     # takes ray origin, centre, ray direction
+  C  ← ˜- ⊓(vec₃~LengthSquared Oc)(˙×) # self dot oc - radius^2
   Discriminant ← (
     ◡(˙×H)
 
@@ -49,7 +49,10 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     -
   ) # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
   HitSphere ← (
-    ⊃(≥0 Discriminant)(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
+    # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
+
+    ◡(≥0 Discriminant)
+    ⊙(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
     ⨬(¯1)(∘)
   )
 └─╴
@@ -59,7 +62,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
     +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
   )
-  At ← °⍉ + × # requires T, ray dir, ray origin
+  At ← + × # requires T, ray dir, ray origin
 
   Render ← (
     ⟜(SkyColour ray~R~Dir)
@@ -67,9 +70,8 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     ◡Sphere~HitSphere
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
     ⊃(>0)(
-      vec₃~UnitVector -[0 0 ¯ 1] At
+      ÷ 0.5 ≡₁-[0 0 ¯ 1] At
       ×0.5 +1
-      ⍉
     )
     ×
     ⊸(=0)
@@ -81,7 +83,11 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
 
 ray~Render
-# &ims # render image to term
 
-&fwa "out/out.png" img"png" # image to file
-#
+┌─╴save
+  Show ← (
+    &fwa "out/out.png" img"png"
+    ⋅&ims °img &frab "out/out.png"
+  ) # image to file
+└─╴
+save~Show
