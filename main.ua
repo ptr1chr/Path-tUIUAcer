@@ -73,14 +73,15 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 └─╴
 ┌─╴thing
   Render ← (
-    # ⟜(SkyColour ray~R~Dir)
+    ⟜(ray~SkyColour ray~R~Dir)
     ⊃(⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
       Sphere~HitSphere
     )(⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
       Sphere~HitSphere)
-    # ×
-    # ⊸(=0)
-    # ⨬(⊙◌)(+)
+    ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
+    +⊃(×× ⊙◌)(⋅∘)
+    ⊸(=0)
+    ⨬(⊙◌)(+)
   )
 
 └─╴
@@ -88,8 +89,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
 
 thing~Render
-⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
-+⊃(×× ⊙◌)(⋅∘)
+
 ┌─╴save
   Show ← (
     &fwa "out/out.png" img"png"
