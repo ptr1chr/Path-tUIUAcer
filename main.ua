@@ -60,8 +60,10 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
 
     ◡(
-      ◡(≥0 Discriminant)
-      ⊙(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))
+      ⊃((≥0 Discriminant)                       # mask if above interval
+      | (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # "root", or rec.t
+      )
+
       ⨬(¯1)(∘)
     )
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
