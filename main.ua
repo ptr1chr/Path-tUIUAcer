@@ -1,3 +1,4 @@
+# Experimental!
 ┌─╴vec₃
   # vector operations
   Cross         ← ˜-˜∩×⟜⊸∩↻₁∩↻₁
@@ -62,31 +63,36 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
 
     ◡(
-      ⊃((≥0 Discriminant)                       # mask if above interval
+      ⊃((≥0 Discriminant) # mask if above interval
+        # | (˜≤ Discriminant)
       | (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # "root", or rec.t
       )
+
       ⨬(¯1)(∘)
     )
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
-    ?
-    # ⊃(>0)(
-    #  vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
-    #  ×0.5 +1
-    # )
+
+    ⊃(|(>0)|(𝄐𝄐˜≤)|(
+        vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
+        ×0.5 +1
+      ))
+    ×
   )
 └─╴
 ┌─╴thing
   HitAllSpheres ← (
     ⊃(⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
       Sphere~HitSphere
-    )(⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
-      Sphere~HitSphere)
+    ) (⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
+       Sphere~HitSphere)
   )
   Render ← (
-    ⟜(ray~SkyColour ray~R~Dir)
-    HitAllSpheres
+    ⊃(
+    | (HitAllSpheres)
+    | (ray~SkyColour ray~R~Dir))
     ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
     +⊃(×× ⊙◌)(⋅∘)
+
     ⊸(=0)
     ⨬(⊙◌)(+)
   )
@@ -95,6 +101,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 
 ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
 ⊙ray~TMax
+
 ≡₁thing~Render
 
 ┌─╴save
