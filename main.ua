@@ -73,8 +73,9 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
 
     ⊃(|(>0)|(𝄐𝄐˜≤)|(
-        vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
-        ×0.5 +1
+        # vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
+        # ×0.5 +1
+        ∘
       ))
     ×
   )
@@ -85,22 +86,25 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
       Sphere~HitSphere
     ) (⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
        Sphere~HitSphere)
+    ∩(×)
+    ⊸>
+    # ⨬(⋅∘)(∘)
   )
   Render ← (
     ⊃(
     | (HitAllSpheres)
     | (ray~SkyColour ray~R~Dir))
-    ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
-    +⊃(×× ⊙◌)(⋅∘)
+    # ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
+    # +⊃(×× ⊙◌)(⋅∘)
 
-    ⊸(=0)
-    ⨬(⊙◌)(+)
+    # ⊸(=0)
+    # ⨬(⊙◌)(+)
   )
 
 └─╴
 
 ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
-⊙ray~TMax
+⊙ray~TMax                                                  # max interval for ray hit
 
 ≡₁thing~Render
 
