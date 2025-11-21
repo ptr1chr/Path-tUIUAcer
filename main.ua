@@ -5,11 +5,11 @@
   Dot           ← ≡₁/+×
   LengthSquared ← ≡₁/+˙×
   Length        ← √LengthSquared
-  UnitVector    ← ˜÷⟜(Length)
+  UnitVector    ← ÷⊸(Length)
 └─╴
 # init grid
 AspectRatio ← ÷9 16                      # aspect ratio
-ImageWidth  ← 400                        # width number
+ImageWidth  ← 10                         # width number
 ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 
 # Camera
@@ -50,6 +50,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   A  ← ≡₁vec₃~LengthSquared            # takes ray direction
   H  ← vec₃~Dot Oc                     # takes ray origin, centre, ray direction
   C  ← ˜- ⊓(vec₃~LengthSquared Oc)(˙×) # self dot oc - radius^2
+  ~HitResult {T P Normal}
   Discriminant ← (
     ◡(˙×H)
 
@@ -58,24 +59,41 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     ⊙⊙⊙˜⟜₂⋅◌
     × ⊙A C
     -
-  ) # takes ray origin, centre, ray dir, sphere radius, ray origin, centre, ray dir
+  ) # takes ray origin, centre, ray dir, sphere radius
+
   HitSphere ← (
     # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
 
     ◡(
-      ⊃((≥0 Discriminant) # mask if above interval
-        # | (˜≤ Discriminant)
-      | (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # "root", or rec.t
+      ⊃(
+      | (≥0 Discriminant) # mask if hit occurred
+      | (⊃(
+          | $root (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))   # close "root", or rec.t
+          | $roottwo (˜÷ + ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # far "root", or rec.t
+          )
+         ◡⊃(
+          | (>ray~TMin)
+          | (𝄐˜≤)
+          ))
+        ×
+
+        ⨬(⊙◌)(⋅∘)
       )
 
       ⨬(¯1)(∘)
     )
-    ⊃(⊙⋅⋅⊙◌)(⋅⊙⋅⋅◌)
+
+    ⊃(⊙⋅⋅⋅⊙◌)(⋅⋅⊙⋅⋅◌)
 
     ⊃(|(>0)|(𝄐𝄐˜≤)|(
+        ⊃(
+        | ∘
+        | ray~At
+        | ×0.5 +1 vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At)
+
+        HitResult
         # vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
         # ×0.5 +1
-        ∘
       ))
     ×
   )
@@ -86,8 +104,15 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
       Sphere~HitSphere
     ) (⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
        Sphere~HitSphere)
-    ∩(×)
-    ⊸>
+    ∩(Sphere~HitResult (× ⊙°□₃))
+    ◡∩(Sphere~HitResult~T)
+    >
+
+    # ⋅Sphere~HitResult~Normal
+    ⍚⨬(∘)(⋅∘)
+    # △ °□
+    # Sphere~HitResult~Normal
+    # ⊸>
     # ⨬(⋅∘)(∘)
   )
   Render ← (
@@ -97,8 +122,8 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     # ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
     # +⊃(×× ⊙◌)(⋅∘)
 
-    # ⊸(=0)
-    # ⨬(⊙◌)(+)
+    ⊸(=0)
+    ⨬(⊙◌)(+)
   )
 
 └─╴
