@@ -50,7 +50,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   A  ← ≡₁vec₃~LengthSquared            # takes ray direction
   H  ← vec₃~Dot Oc                     # takes ray origin, centre, ray direction
   C  ← ˜- ⊓(vec₃~LengthSquared Oc)(˙×) # self dot oc - radius^2
-  ~HitResult {T P Normal}
+  ~HitResult {T P Normal M}
   Discriminant ← (
     ◡(˙×H)
 
@@ -85,39 +85,50 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 
     ⊃((⊙⋅⋅⋅⊙◌)|(⋅⋅⊙⋅⋅⋅∘)|(⋅⋅⋅⊙⋅∘))
 
-    ⊃(|(>0)|(𝄐𝄐˜<)|(
+    ⊃(
+    | ∘
+    | ray~At
+    | (
         ⊃(
-        | ∘
-        | ray~At
-        | (
-            ⊃(
-            | (⋅∘)
-            | (˜÷ ≡₁- ⊃((⋅⋅⋅⋅∘)|(ray~At)|(⋅⋅⋅⋅⋅∘)))
-            )
-            ◡(>0 vec₃~Dot)
-            × ⊙⋅∘ ¬
-          )
+        | (⋅∘)
+        | (˜÷ ≡₁- ⊃((⋅⋅⋅⋅∘)|(ray~At)|(⋅⋅⋅⋅⋅∘)))
         )
+        ◡(>0 vec₃~Dot)
+        × ⊙⋅∘ ¬
+      )
+    | (>ray~TMin)
+    | < ⊃(⋅⋅⋅∘)(∘)
+    )
 
-        HitResult
-        # vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
-        # ×0.5 +1
-      ))
+    # vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
+    # ×0.5 +1
 
-    ×
+    ⊙⊙⊙×
+
+    HitResult
   )
 └─╴
 ┌─╴thing
   HitAllSpheres ← (
-    ⊃(⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
-      Sphere~HitSphere
-    ) (⊙([0 ¯ 100.5 ¯ 1.3] ⊙100 ray~R~Dir) ⊸ray~R~Origin
-       Sphere~HitSphere)
-    ⊃(⋅⊙⋅∘)(⊙⋅⊙◌)
-    ⊃(< ˜∩(˜⨬(100000)(∘)) ∩(⌵ °□⊢))(∩°□₃)
-    □₃ ⨬(⊙⊙⊙⋅⋅◌)(⋅⋅⋅⊙⊙∘)
+    [
+      ⊃(
+      | Sphere~HitSphere ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
+      | Sphere~HitSphere ⊙([0 ¯ 10.5 ¯ 1] ⊙10 ray~R~Dir) ⊸ray~R~Origin
+      | Sphere~HitSphere ⊙([3 0 ¯ 1] ⊙1 ray~R~Dir) ⊸ray~R~Origin
+      )
+    ]
+    /(
+      ⊃(
+        < ⨬(100000)(∘) ⊃(Sphere~HitResult~M)(∩(⌵ Sphere~HitResult~T))
+      )(∩(°□₄))
+      □₄ ⨬(⊙⊙⊙⊙⋅⋅⋅◌)(⋅⋅⋅⋅⊙⊙⊙∘)
+    )
+
+    # ⊃(⋅⊙⋅∘)(⊙⋅⊙◌)
+    # ⊃(< ˜∩(˜⨬(100000)(∘)) ∩(⌵ °□⊢))(∩°□₃)
+    # □₃ ⨬(⊙⊙⊙⋅⋅◌)(⋅⋅⋅⊙⊙∘)
     ⊃(
-    | Sphere~HitResult~T
+    | Sphere~HitResult~M
     | Sphere~HitResult~Normal)
   )
   Render ← (
@@ -128,8 +139,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 
     # +⊃(×× ⊙◌)(⋅∘)
 
-    (=¯ 100000)
-    ⨬(×0.5 +1 ⊙◌)(⋅∘) # either show normals or sky
+    ⨬(⋅∘)(×0.5 +1 ⊙◌) # either show normals or sky
   )
 
 └─╴
