@@ -32,7 +32,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   TopLeftPixelLoc   ← + ViewPortUpperLeft ×0.5 (+ PixelDeltaU PixelDeltaV)
   # topleftpixelloc should be same as pixel00 loc in raytracing in one weekend
   GetRayDir ← (
-    ≡× ¤ Cam~PixelDeltaV ⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⊸⇡ ImageWidth
+    ≡× ¤ Cam~PixelDeltaV ⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⇡ ImageWidth
     +¤¤×[÷ ImageWidth ViewWidth÷ ImageHeight ¯ViewHeight 0]vec₃~SampleSquare + ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
     ⍉ - Cam~CameraCentre°⍉                                                                              # ray direction
   )
@@ -41,11 +41,11 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 ┌─╴ray
   ~R {Origin Dir}
   SkyColour ← (
-    ×0.5 +1 ≡≡(⊡1 vec₃~UnitVector)
-    +≡≡⊃(×1_1_1¬)(×0.5_0.7_1)
+    ×0.5 +1 ≡₁(⊡1 vec₃~UnitVector)
+    +≡₁⊃(×1_1_1¬)(×0.5_0.7_1)
   )
-  At   ← + × # requires T, ray dir, ray origin
-  TMin ← 0.00000001
+  At   ← + × ⊙vec₃~UnitVector # requires T, ray dir, ray origin
+  TMin ← 0.0000000001
   TMax ← ∞
 └─╴
 ┌─╴Sphere
@@ -69,8 +69,8 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
       ⊃(
       | (≥0 Discriminant) # mask if hit occurred
       | (⊃(
-          | $root (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))   # close "root", or rec.t
-          | $roottwo (˜÷ + ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # far "root", or rec.t
+          | (˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌)) # close "root", or rec.t
+          | (˜÷ + ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌))  # far "root", or rec.t
           )
          ◡⊃(
           | (>ray~TMin)
@@ -94,8 +94,8 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
         | (⋅∘)
         | (˜÷ ≡₁- ⊃((⋅⋅⋅⋅∘)|(ray~At)|(⋅⋅⋅⋅⋅∘)))
         )
-        ◡(>0 vec₃~Dot)
-        × ⊙⋅∘ ¬
+        ◡(≤0 vec₃~Dot)
+        × ⊙⋅∘ -⊸¬
       )
     | (>ray~TMin)
     | < ⊃(⋅⋅⋅∘)(∘)
@@ -107,14 +107,14 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   )
 └─╴
 ┌─╴thing
-  HitAllSpheres ← |3 (
-    [
-      ⊃(
+  HitAllSpheres ← |3.2 (
+    ⤚[⊃(
       | Sphere~HitSphere ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
-      | Sphere~HitSphere ⊙([0.5 ¯ 0.4 ¯ 1.3] ⊙0.4 ray~R~Dir) ⊸ray~R~Origin
+      | Sphere~HitSphere ⊙([0.5 ¯ 0.5 ¯ 1.3] ⊙0.4 ray~R~Dir) ⊸ray~R~Origin
       | Sphere~HitSphere ⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
-      )
-    ]
+      )]
+    ⊙ray~R~Dir
+
     /(
       ⊃(
         < ⨬(100000)(∘) ⊃(Sphere~HitResult~M)(∩(⌵ Sphere~HitResult~T))
@@ -122,29 +122,26 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
       □₄ ⨬(⊙⊙⊙⊙⋅⋅⋅◌)(⋅⋅⋅⋅⊙⊙⊙∘)
     )
     °□₄
-
-    ⊃(¬↥ ⊙(>100) ⋅⋅⋅⊙∘)(⊙⊙⊙⊙∘)
+    ⊃((¬↥ ⊙(>100) ⋅⋅⋅⊙⋅∘)
+    | (⊙⊙⊙⊙⋅∘)
+    | (⋅⋅⋅⋅⊙◌))
 
     ⨬(⊃(
-      | □₂⊃(⋅∘)(× -⊸¬ >0 ⤚vec₃~Dot vec₃~RandUnitVec ⋅⋅∘)
+      | □₂⊃(⋅∘)(+vec₃~RandUnitVec vec₃~UnitVector ⋅⋅∘)
       | ∘
       | +1 ⋅⋅⋅⋅∘
       ) # recursion values, should be the hit location, a random vector that is facing the same hemisphere as the normal and the T value of the hit
       HitAllSpheres
-    )(⋅⋅⋅⋅∘)
+    )(⋅⋅⋅⋅⊙∘)
   )
 
   Render ← (
-    ⊃(
-    | (HitAllSpheres⊙⊙0)
-    | (ray~SkyColour ray~R~Dir))
+    ⤚(HitAllSpheres⊙⊙0)
 
     ⊸(=0)
-    ⊙(≡₀˙(⊂⊂)˜ⁿ0.5)
-
-    ⨬(×0.5 +1 ⊙◌)(⋅∘)
-    ⊸(=0)
-    ⨬(√)(∘)
+    ⊙(⟜&ims ≡₀˙(⊂⊂)˜ⁿ0.5)
+    ⊙⊙⊙(ray~R~Dir)
+    ⨬(× ⊙ray~SkyColour)(⋅⋅(ray~SkyColour))
     &p"rendered frame"
   )
 
