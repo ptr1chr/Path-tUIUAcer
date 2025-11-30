@@ -6,6 +6,8 @@
   LengthSquared ← ≡₁/+˙×
   Length        ← √LengthSquared
   UnitVector    ← ÷⊸(Length)
+  RandUnitVec   ← (÷ ⊸Length ⍢⋅(-⊸¬⍥(⚂)3)(×⊃(>1)(>1e-160) LengthSquared) ∞)
+  SampleSquare  ← ([-0.5 ⚂ -0.5 ⚂ 0])
 └─╴
 # init grid
 AspectRatio ← ÷9 16                      # aspect ratio
@@ -14,6 +16,7 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
 
 # Camera
 ┌─╴Cam
+  Samples      ← 100
   FocalLength  ← 1
   ViewHeight   ← 2
   ViewWidth    ← × ViewHeight (÷ ImageHeight ImageWidth)
@@ -29,9 +32,9 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   TopLeftPixelLoc   ← + ViewPortUpperLeft ×0.5 (+ PixelDeltaU PixelDeltaV)
   # topleftpixelloc should be same as pixel00 loc in raytracing in one weekend
   GetRayDir ← (
-    ≡× ¤ Cam~PixelDeltaV⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⇡ ImageWidth
-    + ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
-    ⍉ - Cam~CameraCentre°⍉     # ray direction
+    ≡× ¤ Cam~PixelDeltaV ⇡ ImageHeight ≡× ¤ Cam~PixelDeltaU⊸⇡ ImageWidth
+    +¤¤×[÷ ImageWidth ViewWidth÷ ImageHeight ¯ViewHeight 0]vec₃~SampleSquare + ¤¤ Cam~TopLeftPixelLoc⊞+ # pixel centre
+    ⍉ - Cam~CameraCentre°⍉                                                                              # ray direction
   )
 └─╴
 
@@ -62,8 +65,6 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
   ) # takes ray origin, centre, ray dir, sphere radius
 
   HitSphere ← (
-    # ⍣(˜÷ ˜- ⊃⊃(⊙◌ H)(√ Discriminant)(A⋅⋅⊙◌) ◡(≥0 Discriminant))(¯1)
-
     ◡(
       ⊃(
       | (≥0 Discriminant) # mask if hit occurred
@@ -100,21 +101,18 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
     | < ⊃(⋅⋅⋅∘)(∘)
     )
 
-    # vec₃~UnitVector≡₁-[0 0 ¯ 1] ray~At
-    # ×0.5 +1
-
     ⊙⊙⊙×
 
     HitResult
   )
 └─╴
 ┌─╴thing
-  HitAllSpheres ← (
+  HitAllSpheres ← |3 (
     [
       ⊃(
       | Sphere~HitSphere ⊙([0 0 ¯ 1] ⊙0.5 ray~R~Dir) ⊸ray~R~Origin
-      | Sphere~HitSphere ⊙([0 ¯ 10.5 ¯ 1] ⊙10 ray~R~Dir) ⊸ray~R~Origin
-      | Sphere~HitSphere ⊙([3 0 ¯ 1] ⊙1 ray~R~Dir) ⊸ray~R~Origin
+      | Sphere~HitSphere ⊙([0.5 ¯ 0.4 ¯ 1.3] ⊙0.4 ray~R~Dir) ⊸ray~R~Origin
+      | Sphere~HitSphere ⊙([0 ¯ 100.5 ¯ 1] ⊙100 ray~R~Dir) ⊸ray~R~Origin
       )
     ]
     /(
@@ -123,32 +121,41 @@ ImageHeight ← ↥1⁅÷AspectRatio ImageWidth # screen uv height
       )(∩(°□₄))
       □₄ ⨬(⊙⊙⊙⊙⋅⋅⋅◌)(⋅⋅⋅⋅⊙⊙⊙∘)
     )
+    °□₄
 
-    # ⊃(⋅⊙⋅∘)(⊙⋅⊙◌)
-    # ⊃(< ˜∩(˜⨬(100000)(∘)) ∩(⌵ °□⊢))(∩°□₃)
-    # □₃ ⨬(⊙⊙⊙⋅⋅◌)(⋅⋅⋅⊙⊙∘)
-    ⊃(
-    | Sphere~HitResult~M
-    | Sphere~HitResult~Normal)
+    ⊃(¬↥ ⊙(>100) ⋅⋅⋅⊙∘)(⊙⊙⊙⊙∘)
+
+    ⨬(⊃(
+      | □₂⊃(⋅∘)(× -⊸¬ >0 ⤚vec₃~Dot vec₃~RandUnitVec ⋅⋅∘)
+      | ∘
+      | +1 ⋅⋅⋅⋅∘
+      ) # recursion values, should be the hit location, a random vector that is facing the same hemisphere as the normal and the T value of the hit
+      HitAllSpheres
+    )(⋅⋅⋅⋅∘)
   )
+
   Render ← (
     ⊃(
-    | (HitAllSpheres)
+    | (HitAllSpheres⊙⊙0)
     | (ray~SkyColour ray~R~Dir))
-    # ⊃⊃(˜-1× ⊙◌)(×)(⋅⋅∘)
 
-    # +⊃(×× ⊙◌)(⋅∘)
+    ⊸(=0)
+    ⊙(≡₀˙(⊂⊂)˜ⁿ0.5)
 
-    ⨬(⋅∘)(×0.5 +1 ⊙◌) # either show normals or sky
+    ⨬(×0.5 +1 ⊙◌)(⋅∘)
+    ⊸(=0)
+    ⨬(√)(∘)
+    &p"rendered frame"
   )
 
 └─╴
 
-ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
-⊙ray~TMax                                                  # max interval for ray hit
+⍥(ray~R (⬚0_0_0↯ [ImageHeight ImageWidth 3] 0) Cam~GetRayDir # init array, includes origin & dir
+  ⊙ray~TMax                                                  # max interval for ray hit
 
-≡₁thing~Render
-
+  thing~Render
+)Cam~Samples
+÷ Cam~Samples /+
 ┌─╴save
   Show ← (
     &fwa "out/out.png" img"png"
